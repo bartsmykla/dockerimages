@@ -7,7 +7,8 @@ RUN yum -y install \
     git \
     openssh-client \
     openssh-server \
-    ca-certificates
+    ca-certificates \
+    jq
 
 # install circleci cli app
 RUN curl -fLSs https://circle.ci/cli | bash
