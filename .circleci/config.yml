@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  build-and-publish-docker-image:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    parameters:
+      image_path:
+        type: string
+      image:
+        type: string
+      namespace:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: "Build Docker Image: << parameters.image >>"
+          command: |
+            docker build -t << parameters.namespace >>/<< parameters.image >>:$(cat << parameters.image_path >>/VERSION) \
+              -f << parameters.image_path >>/Dockerfile .
+      - run:
+          name: "Publish Docker Image: << parameters.image >> to Docker Hub"
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push << parameters.namespace >>/<< parameters.image >>:$(cat << parameters.image_path >>/VERSION)
+
+workflows:
+  "Build and Publish Docker Images":
+    jobs:
+      - build-and-publish-docker-image:
+          name: "build-cicd"
+          image_path: ./cicd
+          image: cicd
+          namespace: bartsmykla
