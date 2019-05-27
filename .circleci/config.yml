@@ -1,36 +1,54 @@
 version: 2.1
 
+orbs:
+  docker:
+    commands:
+      login:
+        description: "Login to DockerHub"
+        steps:
+          - run:
+              name: "Login to DockerHub"
+              command: |
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
 jobs:
-  build-and-publish-docker-image:
+  shellcheck:
+    docker:
+      - image: koalaman/shellcheck-alpine:stable
+    steps:
+      - checkout
+      - run:
+          name: Check Scripts
+          command: |
+            find . -type f -name '*.sh' | wc -l
+            find . -type f -name '*.sh' | xargs shellcheck --external-sources
+
+  build-and-publish-docker-images:
     docker:
       - image: circleci/buildpack-deps:stretch
     parameters:
-      image_path:
+      images_path:
         type: string
-      image:
+        default: ./images
+      docker_username:
         type: string
-      namespace:
-        type: string
+        default: bartsmykla
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - docker/login
       - run:
-          name: "Build Docker Image: << parameters.image >>"
+          name: "Build and Publish Docker Images from << parameters.images_path >>"
           command: |
-            docker build -t << parameters.namespace >>/<< parameters.image >>:$(cat << parameters.image_path >>/VERSION) \
-              -f << parameters.image_path >>/Dockerfile .
-      - run:
-          name: "Publish Docker Image: << parameters.image >> to Docker Hub"
-          command: |
-            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push << parameters.namespace >>/<< parameters.image >>:$(cat << parameters.image_path >>/VERSION)
+            ./scripts/build_and_push.sh \
+              --images-path << parameters.images_path >> \
+              --docker-username << parameters.docker_username >>
 
 workflows:
   "Build and Publish Docker Images":
     jobs:
-      - build-and-publish-docker-image:
-          name: "build-cicd"
-          image_path: ./cicd
-          image: cicd
-          namespace: bartsmykla
+      - shellcheck
+      - build-and-publish-docker-images:
+          requires:
+            - shellcheck
