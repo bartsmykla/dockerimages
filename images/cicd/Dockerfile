@@ -12,6 +12,11 @@ RUN yum -y install \
 # install circleci cli app
 RUN curl -fLSs https://circle.ci/cli | bash
 
+# install kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin/kubectl
+
 # update system
 RUN yum update -y
 
