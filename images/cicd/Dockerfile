@@ -1,8 +1,10 @@
 FROM centos:7
 
+# epel-release must be installed first, before trying to install anything from it
+RUN yum -y install epel-release
+
 # install basic apps via yum
 RUN yum -y install \
-    epel-release \
     dnf \
     git \
     openssh-client \
