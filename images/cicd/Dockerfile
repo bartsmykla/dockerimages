@@ -12,7 +12,9 @@ RUN yum -y install \
     ca-certificates \
     jq \
     wget \
-    unzip
+    unzip \
+    openssl \
+    which
 
 # install circleci cli app
 RUN curl -fLSs https://circle.ci/cli | bash
