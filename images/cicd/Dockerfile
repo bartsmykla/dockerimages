@@ -10,7 +10,9 @@ RUN yum -y install \
     openssh-client \
     openssh-server \
     ca-certificates \
-    jq
+    jq \
+    wget \
+    unzip
 
 # install circleci cli app
 RUN curl -fLSs https://circle.ci/cli | bash
@@ -31,3 +33,7 @@ RUN systemctl enable docker
 RUN dnf -y install dnf-plugins-core
 RUN dnf -y copr enable daftaupe/hugo
 RUN dnf -y install hugo
+
+# install terraform
+RUN wget https://releases.hashicorp.com/terraform/0.12.0/terraform_0.12.0_linux_amd64.zip
+RUN unzip ./terraform_0.12.0_linux_amd64.zip -d /usr/local/bin/
