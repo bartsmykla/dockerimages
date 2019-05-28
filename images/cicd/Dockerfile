@@ -37,3 +37,6 @@ RUN dnf -y install hugo
 # install terraform
 RUN wget https://releases.hashicorp.com/terraform/0.12.0/terraform_0.12.0_linux_amd64.zip
 RUN unzip ./terraform_0.12.0_linux_amd64.zip -d /usr/local/bin/
+
+# install helm
+RUN curl -L https://git.io/get_helm.sh | bash
