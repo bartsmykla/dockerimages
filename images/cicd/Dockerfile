@@ -42,3 +42,4 @@ RUN unzip ./terraform_0.12.0_linux_amd64.zip -d /usr/local/bin/
 
 # install helm
 RUN curl -L https://git.io/get_helm.sh | bash
+RUN helm init --client-only
